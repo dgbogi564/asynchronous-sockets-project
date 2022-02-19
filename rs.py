@@ -73,7 +73,13 @@ def rs():
 
               #send response to client
               msg = '{} - TIMED OUT'.format(query)
-              cs.send(msg.encode('utf-8')        
+              cs.send(msg.encode('utf-8')  
+ 
+   #close sockets
+   rs.close()
+   ts1.close()
+   ts2.close()
+   exit()     
     
 
 if __name__ == "__main__":
