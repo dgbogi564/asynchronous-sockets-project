@@ -55,6 +55,7 @@ def ts2():
 
     ts2_socket.close()
     rs.close()
+    exit()
 
 if __name__ == "__main__":
     ts2()

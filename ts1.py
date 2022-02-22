@@ -55,19 +55,7 @@ def ts1():
 
     ts1_socket.close()
     rs.close()
+    exit()
 
 if __name__ == "__main__":
     ts1()
-    
-
-
-    
-
-    
-        
-        
-
-    
-
-    
-    exit()
