@@ -5,7 +5,7 @@ import sys
 
 def rs():
     try:
-        rs = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        rs_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         print('[RS]: RS socket created')
         ts1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         print('[RS]: TS1 socket created')
@@ -27,22 +27,26 @@ def rs():
     ts1_binding = (ts1_name, ts1_port)
     ts2_binding = (ts2_name, ts2_port)
 
-    rs.bind(rs_binding)
-    rs.listen(5)
-    rs.setblocking(False)
+    rs_socket.bind(rs_binding)
+    rs_socket.listen(5)
+    #rs_socket.setblocking(False)
     ts1.connect(ts1_binding)
-    ts1.setblocking(False)
+    #ts1.setblocking(False)
     ts2.connect(ts2_binding)
-    ts2.setblocking(False)
+    #ts2.setblocking(False)
+
+    hostname = socket.gethostname()
+
+    print('[RS]: Hostname: {} IP: {}'.format(hostname, socket.gethostbyname(hostname)))
 
     #TS server list for select
     sockets = [ts1, ts2]
 
+    #accept connection from client
+    cs, addr = rs_socket.accept()
+    print('[RS]: Got a connection request from a client at {}'.format(addr))
+
     while True:
-        
-        #accept connection from client
-        cs, addr = rs.accept()
-        print('[RS]: Got a connection request from a client at {}'.format(addr))
         #receive queries from client
         data_from_client = cs.recv(100)
         query = data_from_client.decode('utf-8')
@@ -73,14 +77,13 @@ def rs():
 
               #send response to client
               msg = '{} - TIMED OUT'.format(query)
-              cs.send(msg.encode('utf-8')  
- 
-   #close sockets
-   rs.close()
-   ts1.close()
-   ts2.close()
-   exit()     
+              cs.send(msg.encode('utf-8'))
     
+    #close sockets
+    rs_socket.close()
+    ts1.close()
+    ts2.close()
+    exit() 
 
 if __name__ == "__main__":
     rs()
