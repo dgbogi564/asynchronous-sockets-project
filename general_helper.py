@@ -44,6 +44,6 @@ def local_test():
 
 
 if __name__ == "__main__":
-    print("Free port at: {}".format(get_open_port('')))
+    print("Free port at: {}".format(get_open_port([''])[0]))
     # local_test()
     print("Done.")
