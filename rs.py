@@ -10,11 +10,11 @@ def rs(rs_hostname=None, rs_listenport=None, ts1_hostname=None, ts1_listenport=N
 
     if not rs_hostname:
         rs_hostname = socket.gethostbyname(socket.gethostname())
-        rs_listenport = int(sys.argv[0])
-        ts1_hostname = sys.argv[1]
-        ts1_listenport = int(sys.argv[2])
-        ts2_hostname = sys.argv[3]
-        ts2_listenport = int(sys.argv[4])
+        rs_listenport = int(sys.argv[1])
+        ts1_hostname = sys.argv[2]
+        ts1_listenport = int(sys.argv[3])
+        ts2_hostname = sys.argv[4]
+        ts2_listenport = int(sys.argv[5])
 
     try:
         rss = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
