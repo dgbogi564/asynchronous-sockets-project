@@ -10,7 +10,7 @@ def client(rs_hostname=None, rs_listenport=None):
 
     if not rs_hostname:
         rs_hostname = sys.argv[0]
-        rs_listenport = sys.argv[1]
+        rs_listenport = int(sys.argv[1])
 
     try:
         cs = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

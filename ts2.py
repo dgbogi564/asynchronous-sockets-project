@@ -11,7 +11,7 @@ def ts2(ts2_hostname=None, ts2_listenport=None):
 
     if not ts2_hostname:
         ts2_hostname = socket.gethostbyname(socket.gethostname())
-        ts2_listenport = sys.argv[0]
+        ts2_listenport = int(sys.argv[0])
     try:
         ts2s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         ts2s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
