@@ -32,6 +32,7 @@ def rs(rs_hostname=None, rs_listenport=None, ts1_hostname=None, ts1_listenport=N
         print("[RS]: Socket open error: {}".format(e))
         raise e
 
+    print("[RS]: Server started at {}:{}".format(rs_hostname, rs_listenport))
     cs, addr = rss.accept()
     print("[RS]: Got a connection request from a client at {}".format(addr))
 

@@ -23,6 +23,7 @@ def ts2(ts2_hostname=None, ts2_listenport=None):
         print("[TS2]: Socket open error: {}".format(e))
         raise e
 
+    print("[TS2]: Server started at {}:{}".format(ts2_hostname, ts2_listenport))
     rs, addr = ts2s.accept()
     print("[TS2]: Got a connection request from the root server at {}".format(addr))
 
