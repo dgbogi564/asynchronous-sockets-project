@@ -29,13 +29,13 @@ def ts1(ts1_hostname=None, ts1_listenport=None):
     with open('PROJ2-DNSTS1.txt', 'r') as table:
         while True:
             try:
-                query = recv([rs], 60)[0]
+                query = recv([rs], 60)[0].lower()
                 if not query:
                     break
                 print("[TS1]: Query received from root server: {}".format(query))
                 table.seek(0)
                 for line in table.readlines():
-                    if query in line:
+                    if query in line.lower():
                         send([rs], line.strip() + ' IN', 5)
                         print("[TS1]: Response sent to root server: {}".format(line))
                         break

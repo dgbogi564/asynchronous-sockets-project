@@ -50,14 +50,14 @@ def rs(rs_hostname=None, rs_listenport=None, ts1_hostname=None, ts1_listenport=N
             print("[RS]: Query sent to TS servers: {}".format(query))
             while True:
                 response, sock = recv(tss, 5)
-                if domain in response:
+                if domain.lower() in response.lower():
                     break
             for i, s in enumerate(tss):
                 if sock is s:
                     print("[RS]: Response received from TS{}: {}".format(i+1, response))
         except Exception as e:
             if isinstance(e, TimeoutError) and domain and domain in query:
-                response = query + ' - TIMEOUT'
+                response = query + ' - TIMED OUT'
             else:
                 print("[RS]: Exception occurred: {}".format(error))
                 break
