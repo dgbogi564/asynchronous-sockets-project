@@ -22,12 +22,13 @@ def rs(rs_hostname=None, rs_listenport=None, ts1_hostname=None, ts1_listenport=N
         rss.bind((rs_hostname, rs_listenport))
         rss.settimeout(60)
         rss.listen(1)
+        print("[RS]: RS server socket created")
         tss = [socket.socket(socket.AF_INET, socket.SOCK_STREAM), socket.socket(socket.AF_INET, socket.SOCK_STREAM)]
         tss[0].setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         tss[0].connect((ts1_hostname, ts1_listenport))
         tss[1].setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         tss[1].connect((ts2_hostname, ts2_listenport))
-        print("[RS]: RS sockets created")
+        print("[RS]: RS client sockets created")
     except socket.error as e:
         print("[RS]: Socket open error: {}".format(e))
         raise e
