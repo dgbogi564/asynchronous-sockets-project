@@ -23,7 +23,7 @@ def client(rs_hostname=None, rs_listenport=None):
 
     with open('PROJ2-HNS.txt', 'r') as requests, open('RESOLVED.txt', 'w+') as resolved:
         for query in requests:
-            query = query.rstrip()
+            query = query.rstrip() + '\0'
             try:
                 send([cs], query, 5)
                 print("\n[C]: Query sent to root server: {}".format(query))
