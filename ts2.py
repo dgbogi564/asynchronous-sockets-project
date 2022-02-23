@@ -2,60 +2,58 @@ import errno
 import socket
 import select
 import sys
+from sock_helper import TimeoutError, send, recv
+import re
 
-def getTable(f):
-    table = {}
-    for l in f.read().split('\n'):
-        words = l.split(" ")
-        name = words[0].lower() #key is lowercase for case-insensitive lookup
-        table[name] = l
-    return table
 
-def ts2():
+def ts2(ts2_hostname=None, ts2_listenport=None):
+    error = None
+
+    if not ts2_hostname:
+        ts2_hostname = socket.gethostbyname(socket.gethostname())
+        ts2_listenport = sys.argv[0]
     try:
-        ts2_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print('[TS2]: TS2 socket created')
-    except socket.err as e:
-        print('Socket open error: {}\n'.format(e))
-        exit()
+        ts2s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        ts2s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        ts2s.bind((ts2_hostname, ts2_listenport))
+        ts2s.settimeout(60)
+        ts2s.listen(1)
+        print("[TS2]: TS2 socket created")
+    except socket.error as e:
+        print("[TS2]: Socket open error: {}".format(e))
+        raise e
 
-    #receive port from command line
-    port = int(sys.argv[1])
-    binding = ('', port)
-    ts2_socket.bind(binding)
-    ts2_socket.listen(5)
+    rs, addr = ts2s.accept()
+    print("[TS2]: Got a connection request from the root server at {}".format(addr))
 
-    hostname = socket.gethostname()
-    host_addr = socket.gethostbyname(hostname)
-    
-    print('[TS2]: Hostname: {} IP: {}'.format(hostname, host_addr))
-        
-    #open dns file 
-    with open('PROJ2-DNSTS2.txt', 'r') as f:
-        #get dns table
-        dns = getTable(f)
-    f.close()
+    with open('PROJ2-DNSTS2.txt', 'r') as table:
+        while True:
+            try:
+                query = recv([rs], 60)[0]
+                if not query:
+                    break
+                print("[TS2]: Query received from root server: {}".format(query))
+                table.seek(0)
+                for line in table.readlines():
+                    if query in line:
+                        send([rs], line.strip() + ' IN', 5)
+                        print("[TS2]: Response sent to root server: {}".format(line))
+                        break
+            except Exception as e:
+                if isinstance(e, TimeoutError):
+                    print("[TS2]: Timeout occurred")
+                else:
+                    print("[TS2]: Exception occurred: {}".format(e))
+                error = e
+                break
 
-    #accept connection from rs
-    rs, addr = ts2_socket.accept()
-    print('[TS2]: Got a connection request from RS at {}'.format(addr))
-    
-    while True:
-        #recieve queries from rs
-        data_from_rs = rs.recv(100)
-        query = data_from_rs.decode('utf-8')
-        print('[TS2]: Query received from RS: {}'.format(query))
-
-        #check if query is in dns
-        if data_from_rs.lower() in dns:
-            msg = dns.get(query) + ' IN'
-            #send message to rs
-            rs.send(msg)
-            print('[TS2]: Query found in DNS Table')
-
-    ts2_socket.close()
-    rs.close()
+    print("[TS2]: Closing connection")
+    ts2s.shutdown(socket.SHUT_RDWR)
+    ts2s.close()
+    if error:
+        raise
     exit()
+
 
 if __name__ == "__main__":
     ts2()

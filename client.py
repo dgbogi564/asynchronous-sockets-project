@@ -2,55 +2,53 @@ import errno
 import socket
 import select
 import sys
+from sock_helper import TimeoutError, send, recv
 
 
-def client():
+def client(rs_hostname=None, rs_listenport=None):
     error = None
+
+    if not rs_hostname:
+        rs_hostname = sys.argv[0]
+        rs_listenport = sys.argv[1]
 
     try:
         cs = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        cs.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        cs.connect((rs_hostname, rs_listenport))
+        cs.setblocking(False)
         print("[C]: Client socket created")
     except socket.error as e:
-        print('Socket open error: {} \n'.format(e))
-        exit()
+        print("Socket open error: {}".format(e))
+        raise e
 
-    #receive hostname and port from command line
-    name = str(sys.argv[1])
-    port = int(sys.argv[2])
-    server_binding = (name, port)
-    cs.connect(server_binding)
+    with open('PROJ2-HNS.txt', 'r') as requests, open('RESOLVED.txt', 'w+') as resolved:
+        for query in requests:
+            query = query.rstrip()
+            try:
+                send([cs], query, 5)
+                print("\n[C]: Query sent to root server: {}".format(query))
 
-    #print hostname and IP of machine
-    hostname = socket.gethostname()
-    host_addr = socket.gethostbyname(hostname)
-    print('[C]: Hostname: {} IP: {}'.format(hostname, host_addr))
+                response = recv([cs], 20)[0]
+                if not response:
+                    break
+                print("[C]: Response received from root server: {}".format(response))
+                resolved.write(response + '\n')
+            except Exception as e:
+                if e is TimeoutError:
+                    print("[C]: Timeout occurred")
+                else:
+                    print("[C]: Exception occurred: {}".format(e))
+                error = e
+                break
 
-    resolved_file = open('RESOLVED.txt', 'w')
-    
-    with open("PROJ2-HNS.txt", "r") as file:
-        for request in file.read().split('\n'):
-            query = request.encode("utf-8")
-            print("[C]: Sending query: {}".format(request))
-            cs.send(query)
-
-            #determine if rs can be read from
-            readable, _, _ = select.select([cs], [], [], 10)
-
-            if readable:
-                data = cs.recv(100)
-                msg = data.decode('utf-8')
-                print('[C]: Data received from root server: {}'.format(msg))
-                resolved_file.write(msg + '\n')
-            else:
-                print('[C]: Timeout occurred')         
-
-    print("[C]: Closing connection")
+    print("\n[C]: Closing connection")
+    cs.shutdown(socket.SHUT_RDWR)
     cs.close()
-
     if error:
-        print("[C]: Exception occurred")
         raise error
     exit()
+
 
 if __name__ == "__main__":
     client()
