@@ -19,11 +19,10 @@ def get_open_port(hosts):
         ports.append(s.getsockname()[1])
     return ports
 
-
-if __name__ == "__main__":
-    rs_hostname = socket.gethostbyname(socket.gethostname()) #"ilab4.cs.rutgers.edu"
-    ts1_hostname = socket.gethostbyname(socket.gethostname()) #"ilab2.cs.rutgers.edu"
-    ts2_hostname = socket.gethostbyname(socket.gethostname()) #"ilab3.cs.rutgers.edu"
+def local_test():
+    rs_hostname = socket.gethostbyname(socket.gethostname())  # "ilab4.cs.rutgers.edu"
+    ts1_hostname = socket.gethostbyname(socket.gethostname())  # "ilab2.cs.rutgers.edu"
+    ts2_hostname = socket.gethostbyname(socket.gethostname())  # "ilab3.cs.rutgers.edu"
     port = get_open_port([rs_hostname, ts1_hostname, ts2_hostname])
     rs_listenport = port[0]
     ts1_listenport = port[1]
@@ -42,4 +41,9 @@ if __name__ == "__main__":
 
     time.sleep(random.random() * 5)
     client(rs_hostname, rs_listenport)
+
+
+if __name__ == "__main__":
+    print("Free port at: {}".format(get_open_port('')))
+    # local_test()
     print("Done.")
